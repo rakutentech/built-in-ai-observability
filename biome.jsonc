@@ -52,6 +52,16 @@
       }
     },
     {
+      // The MLflow eval example runs one on-device model, so records, tool turns and
+      // judge calls are awaited one after another on purpose.
+      "includes": ["examples/mlflow-eval/**/*.js"],
+      "linter": {
+        "rules": {
+          "performance": { "noAwaitInLoops": "off" }
+        }
+      }
+    },
+    {
       // Runtime guards and streaming reads; globals make static analysis noisy here.
       "includes": [
         "packages/instrumentation-prompt-api/src/instrumentation.ts"

@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>MLflow eval loop with the Prompt API</title>
+    <style>
+    body {
+      max-width: 980px;
+      padding: 0 16px;
+      margin: 24px auto;
+      font:
+        14px / 1.45 system-ui,
+        sans-serif;
+      color: #1f2328;
+    }
+    h1 {
+      font-size: 20px;
+    }
+    h2 {
+      margin: 0 0 6px;
+      font-size: 16px;
+    }
+    h2 code {
+      margin-left: 6px;
+      font-size: 12px;
+      font-weight: normal;
+      color: #57606a;
+    }
+    section {
+      padding: 12px 16px;
+      margin: 12px 0;
+      border: 1px solid #d0d7de;
+      border-radius: 8px;
+    }
+    section p {
+      margin: 4px 0 10px;
+      color: #57606a;
+    }
+    label {
+      margin-right: 12px;
+    }
+    input[type="text"] {
+      width: 220px;
+    }
+    button {
+      margin: 4px 6px 4px 0;
+    }
+    #log {
+      height: 340px;
+      padding: 10px;
+      overflow: auto;
+      font:
+        12px / 1.4 ui-monospace,
+        monospace;
+      color: #e6edf3;
+      white-space: pre-wrap;
+      background: #0d1117;
+      border-radius: 8px;
+    }
+    #log a {
+      color: #58a6ff;
+    }
+    table {
+      width: 100%;
+      margin-top: 8px;
+      font-size: 13px;
+      border-collapse: collapse;
+    }
+    td,
+    th {
+      padding: 4px 6px;
+      vertical-align: top;
+      text-align: left;
+      border: 1px solid #d0d7de;
+    }
+    .ok {
+      color: #1a7f37;
+    }
+    .bad {
+      color: #cf222e;
+    }
+    .muted {
+      color: #57606a;
+    }
+    </style>
+  </head>
+  <body>
+    <h1>Trace → dataset → evaluate → optimize, all in the browser</h1>
+    <p class="muted">
+      Each section below is one numbered file. Read the file, then press its
+      button. Follow them in order.
+    </p>
+
+    <section id="settings">
+      <h2>0. Settings <code>config.js</code></h2>
+      <p>
+        Where MLflow runs (<code>pnpm mlflow</code>
+        serves
+        <code>http://localhost:5000</code>) and which experiment to use. Saved
+        in localStorage.
+      </p>
+      <label>Tracking URI <input id="trackingUri" type="text"></label>
+      <label>UI <input id="uiUri" type="text"></label>
+      <label
+        >Experiment ID
+        <input id="experimentId" style="width:60px" type="text"></label
+      >
+      <button id="save" type="button">Save &amp; reload</button>
+      <div class="muted" id="model-status"></div>
+      <progress hidden id="download" max="1" value="0"></progress>
+      <button hidden id="prepare" type="button">
+        Download the on-device model
+      </button>
+    </section>
+
+    <section>
+      <h2>
+        1. Register the baseline prompt <code>01-register-prompt.js</code>
+      </h2>
+      <p>
+        Saves the agent's system prompt as version 1 in MLflow's Prompt
+        Registry. Pressing it again makes a new version.
+      </p>
+      <button data-step="register" type="button">Register prompt</button>
+    </section>
+
+    <section>
+      <h2>2. Run the agent <code>02-run-agent.js</code></h2>
+      <p>
+        Asks one question, with the latest prompt and three tools. MLflow
+        records the run as a trace.
+      </p>
+      <input
+        id="question"
+        style="width:60%"
+        type="text"
+        value="Can I return order A100?"
+      >
+      <button data-step="ask" type="button">Ask</button>
+    </section>
+
+    <section>
+      <h2>3. Create the dataset <code>03-create-dataset.js</code></h2>
+      <p>
+        10 questions with the expected answer facts and tools. 7 are for
+        training (<code>train</code>), 3 are held back (<code>test</code>).
+        Skipped if it exists.
+      </p>
+      <button data-step="dataset" type="button">Create dataset</button>
+    </section>
+
+    <section>
+      <h2>4. Evaluate a prompt version <code>04-evaluate.js</code></h2>
+      <p>
+        Runs the agent on each question and scores every answer. Do it for
+        version 1 to get your baseline.
+      </p>
+      <label
+        >Version
+        <input id="evalVersion" style="width:60px" type="text" value="1"></label
+      >
+      <label
+        >Split
+        <select id="evalSplit">
+          <option>all</option>
+          <option>train</option>
+          <option>test</option>
+        </select></label
+      >
+      <button data-step="evaluate" type="button">Evaluate</button>
+      <div id="results"></div>
+    </section>
+
+    <section>
+      <h2>5. Optimize the prompt <code>05-optimize.js</code></h2>
+      <p>
+        The model rewrites the prompt from its own failures on the train
+        questions. The best rewrite is saved as a new version.
+      </p>
+      <label
+        >From version
+        <input id="optVersion" style="width:60px" type="text" value="1"></label
+      >
+      <label
+        >Rounds
+        <input id="optRounds" style="width:40px" type="text" value="2"></label
+      >
+      <button data-step="optimize" type="button">Optimize</button>
+    </section>
+
+    <section>
+      <h2>6. Compare on the test split <code>06-compare.js</code></h2>
+      <p>
+        Scores the old version and the newest one on the 3 test questions the
+        optimizer never saw.
+      </p>
+      <label
+        >Old version
+        <input id="cmpVersion" style="width:60px" type="text" value="1"></label
+      >
+      <button data-step="compare" type="button">Compare</button>
+    </section>
+
+    <div id="log"></div>
+
+    <script src="./lib/page.js" type="module"></script>
+  </body>
+</html>

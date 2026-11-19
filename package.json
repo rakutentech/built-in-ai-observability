@@ -12,6 +12,7 @@
     "dev": "turbo run dev",
     "dev:extension": "turbo run dev --filter=@built-in-ai-obs/devtools-extension",
     "dev:minimal": "turbo run dev --filter=@built-in-ai-obs/example-minimal",
+    "dev:mlflow-eval": "turbo run dev --filter=@built-in-ai-obs/example-mlflow-eval",
     "dev:playground": "turbo run dev --filter=@built-in-ai-obs/playground",
     "format": "ultracite fix",
     "mlflow": "uvx mlflow server",

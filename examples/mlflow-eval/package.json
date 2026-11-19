@@ -1,0 +1,17 @@
+{
+  "name": "@built-in-ai-obs/example-mlflow-eval",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Trace, evaluate and optimize a Prompt API agent with MLflow, from plain browser JavaScript",
+  "type": "module",
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown && node serve.js"
+  },
+  "dependencies": {
+    "@built-in-ai-obs/sdk-browser": "workspace:*"
+  },
+  "devDependencies": {
+    "tsdown": "catalog:"
+  }
+}

@@ -39,7 +39,7 @@ await observability.start();
 const session = await LanguageModel.create({ … });
 ```
 
-See [`examples/minimal/`](./examples/minimal/) for a complete app.
+See [`examples/minimal/`](./examples/minimal/) for a complete app, and [`examples/mlflow-eval/`](./examples/mlflow-eval/) to evaluate and optimize a tool-calling agent with MLflow, in plain browser JavaScript.
 
 ### DevTools extension
 
@@ -115,6 +115,7 @@ pnpm format     # auto-fix lint and formatting (full repo)
 # Apps and examples
 pnpm dev:playground
 pnpm dev:minimal
+pnpm dev:mlflow-eval
 pnpm dev:extension
 pnpm build:extension
 pnpm mlflow     # local MLflow server for trace viewing
